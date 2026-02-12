@@ -14,8 +14,29 @@ This repository explores:
 * **Custom Kernels:** Writing Triton/CUDA when PyTorch isn't fast enough.
 
 ---
-## 📊 Featured Benchmarks
-| Pattern | Naive Implementation | Optimized (Vectorized/CUDA) | Speedup |
-| :--- | :--- | :--- | :--- |
-| **Broadcasting (MSE)** | 450ms (Python Loop) | 0.5ms (NumPy/AVX) | **~900x** 🚀 |
-| **Softmax** | TBD | TBD | ... |
+
+## 📊 Featured Benchmarks & Patterns
+
+| Pattern | Context | Naive (Python/Loop) | Optimized (Vectorized/CUDA) | Speedup | Key Insight |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **[Broadcasting](./01_broadcasting_internals)** | Single-Target MSE | `8.6485s` | `0.0610s` | **~141x** 🚀 | Zero-Copy Views (Stride Manipulation) |
+
+---
+
+## 📂 Repository Structure
+
+### 1. [Broadcasting Internals (The "Zero-Copy" Pattern)](./01_broadcasting_internals)
+* **Concept:** How NumPy/PyTorch broadcast shapes without allocating memory.
+* **Code:** * `benchmark_mse.py`: Proof that Broadcasting is 140x faster than loops and 1.3x faster than manual allocation.
+    * `broadcasting_logic.py`: A from-scratch implementation of Virtual Views using Stride logic.
+
+---
+
+## 🛠️ Getting Started
+
+```bash
+# Clone the repository
+git clone [https://github.com/mitesh55/ml-system-patterns.git](https://github.com/mitesh55/ml-system-patterns.git)
+
+# Install dependencies (Minimal)
+pip install numpy torch
