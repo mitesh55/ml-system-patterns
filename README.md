@@ -20,7 +20,7 @@ This repository explores:
 | Pattern | Context | Naive (Python/Loop) | Optimized (Vectorized/CUDA) | Speedup | Key Insight |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **[Broadcasting](./01_broadcasting_internals)** | Single-Target MSE | `8.6485s` | `0.0610s` | **~141x** 🚀 | Zero-Copy Views (Stride Manipulation) |
-
+| **[Advanced Indexing](./02_advanced_indexing_filtering)** | ReLU / Dropout | `0.3047s` | `0.0255s` | **~12x** ⚡ | Branchless Programming (Bitmasks) |
 ---
 
 ## 📂 Repository Structure
@@ -30,6 +30,11 @@ This repository explores:
 * **Code:** * `benchmark_mse.py`: Proof that Broadcasting is 140x faster than loops and 1.3x faster than manual allocation.
     * `broadcasting_logic.py`: A from-scratch implementation of Virtual Views using Stride logic.
 
+### 2. [Advanced Indexing & Filtering (The "Branchless" Pattern)](./02_advanced_indexing_filtering)
+* **Concept:** Why `if x > 0` kills CPU performance (Branch Prediction Failures) and how Masks fix it.
+* **Code:**
+    * `benchmark_filtering.py`: Demonstrates a **12x speedup** using Boolean Masks over Python Loops.
+    * `indexing_internals.py`: Analysis of **View vs. Copy** memory behavior. Shows why `data[mask] = 0` (In-Place) is memory-safe while `y = data[mask]` (Selection) doubles RAM usage.
 ---
 
 ## 🛠️ Getting Started
