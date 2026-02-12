@@ -51,7 +51,7 @@ def benchmark_relu_filtering():
     print(f"[B] Boolean Mask       | Time: {time_b:.4f}s")
 
     # ---------------------------------------------------------
-    # Method C: In-Place Indexing (The "L5" Way)
+    # Method C: In-Place Indexing 
     # ---------------------------------------------------------
     # Logic: 
     # 1. Use the mask directly as an index: `data[mask]`.

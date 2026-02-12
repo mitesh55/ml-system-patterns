@@ -1,0 +1,6 @@
+
+Advance Indexing : 
+backbone of data loaders, dropout and masked language models.
+
+Branch Prediction Failure : 
+- Loop (if x > 0): The CPU has to guess the outcome of the if statement before it knows the answer. If it guesses wrong, it must throw away all the work it just did.
