@@ -6,7 +6,7 @@
 ![CI/CD](https://img.shields.io/badge/build-passing-brightgreen) ![License](https://img.shields.io/badge/license-MIT-blue) ![Language](https://img.shields.io/badge/python-3.10%2B-blue) ![Hardware](https://img.shields.io/badge/hardware-CUDA%20%2F%20CPU-orange)
 
 ## 🏗️ Core Philosophy
-Standard DSA focuses on asymptotic complexity ($O(N)$). Senior ML Engineering requires **Mechanical Sympathy**—understanding how the hardware (CPU/GPU) actually executes the math.
+Standard DSA focuses on asymptotic complexity ($O(N)$). ML Engineering requires **Mechanical Sympathy**—understanding how the hardware (CPU/GPU) actually executes the math.
 
 This repository explores:
 * **Vectorization & Broadcasting:** Why stride manipulation beats loops.
@@ -17,24 +17,42 @@ This repository explores:
 
 ## 📊 Featured Benchmarks & Patterns
 
-| Pattern | Context | Naive (Python/Loop) | Optimized (Vectorized/CUDA) | Speedup | Key Insight |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **[Broadcasting](./01_broadcasting_internals)** | Single-Target MSE | `8.6485s` | `0.0610s` | **~141x** 🚀 | Zero-Copy Views (Stride Manipulation) |
-| **[Advanced Indexing](./02_advanced_indexing_filtering)** | ReLU / Dropout | `0.3047s` | `0.0255s` | **~12x** ⚡ | Branchless Programming (Bitmasks) |
+| DSA Foundation | ML Pattern | Context | Naive (Python) | Optimized (CUDA/Torch) | Speedup | Key Insight |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Arrays / Nested Loops** | [Broadcasting](./01_Arrays_and_Memory/01_broadcasting_vs_nested_loops) | Single-Target MSE | `8.6485s` | `0.0610s` | **~141x** 🚀 | Zero-Copy Views (Stride Manipulation) |
+| **Conditionals / Branching** | [Advanced Indexing](./01_Arrays_and_Memory/02_advanced_indexing_vs_branching) | ReLU / Dropout | `0.3047s` | `0.0255s` | **~12x** ⚡ | Branchless Programming (Bitmasks) |
+
 ---
 
-## 📂 Repository Structure
+## 📂 Repository Structure & Roadmap
 
-### 1. [Broadcasting Internals (The "Zero-Copy" Pattern)](./01_broadcasting_internals)
-* **Concept:** How NumPy/PyTorch broadcast shapes without allocating memory.
-* **Code:** * `benchmark_mse.py`: Proof that Broadcasting is 140x faster than loops and 1.3x faster than manual allocation.
-    * `broadcasting_logic.py`: A from-scratch implementation of Virtual Views using Stride logic.
+This repository follows a structured roadmap, mapping classic DSA categories directly to production ML infrastructure.
 
-### 2. [Advanced Indexing & Filtering (The "Branchless" Pattern)](./02_advanced_indexing_filtering)
-* **Concept:** Why `if x > 0` kills CPU performance (Branch Prediction Failures) and how Masks fix it.
-* **Code:**
-    * `benchmark_filtering.py`: Demonstrates a **12x speedup** using Boolean Masks over Python Loops.
-    * `indexing_internals.py`: Analysis of **View vs. Copy** memory behavior. Shows why `data[mask] = 0` (In-Place) is memory-safe while `y = data[mask]` (Selection) doubles RAM usage.
+### 📍 Phase 1: Arrays, Matrices & Memory Layouts (Current)
+*Bridging continuous memory structures with hardware-aware tensor operations.*
+
+* **1. [Array Traversal -> Broadcasting Internals](./01_Arrays_and_Memory/01_broadcasting_vs_nested_loops)**
+    * **DSA Concept:** Array traversal and $O(N^2)$ nested loop optimization.
+    * **ML Application:** How NumPy/PyTorch broadcast shapes without allocating memory (The "Zero-Copy" Pattern). Proof that Stride logic is 140x faster than loops.
+* **2. [If/Else Branching -> Advanced Indexing & Filtering](./01_Arrays_and_Memory/02_advanced_indexing_vs_branching)**
+    * **DSA Concept:** Conditionals and array filtering.
+    * **ML Application:** Why `if x > 0` kills CPU performance (Branch Prediction Failures). Replacing branch logic with Boolean Masks for a 12x speedup and memory-safe in-place operations.
+
+### 📍 Phase 2: Hash Maps & Search Optimization (Upcoming)
+*Bridging exact key-value retrieval with approximate semantic search.*
+* **DSA Concept:** Hashing, Tries, Collision Resolution.
+* **ML Application:** Vector Databases, K-NN approximations, and optimized embedding retrieval for RAG pipelines.
+
+### 📍 Phase 3: Trees, Graphs & Execution Engines (Upcoming)
+*Bridging node traversals with model compilation.*
+* **DSA Concept:** Trees, DFS/BFS, Directed Acyclic Graphs (DAGs).
+* **ML Application:** Computation Graphs, Autograd engines, and AST parsing for dynamic graph execution.
+
+### 📍 Phase 4: Concurrency & Distributed Systems (Upcoming)
+*Bridging multi-threading with GPU scaling.*
+* **DSA Concept:** Concurrency, Locks, Distributed Algorithms.
+* **ML Application:** Custom CUDA kernels, TensorRT operator fusion, vLLM continuous batching, and multi-GPU orchestrations.
+
 ---
 
 ## 🛠️ Getting Started
