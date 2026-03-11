@@ -25,6 +25,8 @@ Extracting a sliding window of size `3` from an array of **10 Million** elements
 ## 3. Deep Dive: What is a Stride?
 PyTorch doesn't store rows and columns. It stores a flat, contiguous block of memory.
 
+
+
 If you have a 1D tensor: `[0, 1, 2, 3, 4, 5]`
 How does PyTorch view this as a `2x3` matrix? It uses a **Stride Tuple**.
 * Shape: `(2, 3)`
@@ -34,10 +36,22 @@ How does PyTorch view this as a `2x3` matrix? It uses a **Stride Tuple**.
 
 ---
 
-## 4. 🚨 The "Contiguous" Trap
+## 4. ⚙️ Demystifying the Black Box (Raw Implementation)
+To prove this isn't C++ magic, we can implement PyTorch's internal tensor engine in pure Python. 
+
+The physical memory address of any multi-dimensional element is calculated using a strict formula:
+`MemoryIndex = Offset + Sum(Index[i] * Stride[i])`
+
+By building a `MockTensor` class, we can prove that operations like `.transpose()` or `.as_strided()` simply swap the metadata (the tuples) without moving a single byte of underlying array data.
+
+*(Run `python raw_stride_logic.py` to see 1D RAM dynamically rendered as transposed 2D matrices using only mathematical offsets)*
+
+---
+
+## 5. 🚨 The "Contiguous" Trap
 When you hack strides (e.g., transposing a matrix), the memory is no longer read left-to-right. It is "non-contiguous".
 
 **Why this matters for System Design:**
-If you pass a non-contiguous tensor to a custom C++ or CUDA kernel, the GPU will suffer massive **Cache Misses**, destroying your inference speed. Its important to know when to call `.contiguous()` to force a clean memory copy before hitting the hardware layer.
+If you pass a non-contiguous tensor to a custom C++ or CUDA kernel, the GPU will suffer massive **Cache Misses**, destroying your inference speed. It is critical to know when to call `.contiguous()` to force a clean memory copy before hitting the hardware layer.
 
 *(Run `python stride_internals.py` to see memory addresses and the contiguous trap in action)*
