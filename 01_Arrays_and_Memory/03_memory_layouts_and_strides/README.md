@@ -55,3 +55,26 @@ When you hack strides (e.g., transposing a matrix), the memory is no longer read
 If you pass a non-contiguous tensor to a custom C++ or CUDA kernel, the GPU will suffer massive **Cache Misses**, destroying your inference speed. It is critical to know when to call `.contiguous()` to force a clean memory copy before hitting the hardware layer.
 
 *(Run `python stride_internals.py` to see memory addresses and the contiguous trap in action)*
+
+---
+
+## 6. ⚙️ The Descent to Silicon: Proving the Cache Miss
+In Section 5, we warned that passing a non-contiguous tensor to the hardware layer would destroy inference speed. We can write a custom CUDA kernel to physically measure this bottleneck.
+
+If we force a GPU to copy a 100-Million element matrix (10,000 x 10,000), performing the exact same mathematical operation, but changing the physical memory access pattern:
+
+| Implementation | VRAM Access Pattern | Time (s) | Impact |
+| :--- | :--- | :--- | :--- |
+| **[A] Contiguous Copy** | Sequential (Row-Major) | `0.00537s` | **Max Bandwidth** |
+| **[B] Strided Copy (Transposed)** | Fragmented (Column-Major) | `0.01312s` | **~2.44x Slower** 💥 |
+
+
+
+### 💡 Engineering Intuition: Memory Coalescing
+Why does simply reading memory out-of-order cause a ~2.44x slowdown? 
+The GPU VRAM does not fetch floats one-by-one. It fetches data in 128-byte chunks called **Cache Lines**.
+
+* **Coalesced (Kernel A):** When 32 GPU threads read 32 sequential floats, they fit perfectly inside a single 128-byte Cache Line. The GPU fetches all of them in exactly **1 VRAM transaction**.
+* **Uncoalesced (Kernel B):** When threads read data transposed, they jump across memory addresses. If 32 threads request floats that are 10,000 indices apart, the GPU must fetch 32 entirely separate Cache Lines, discarding the surrounding unneeded data each time. You force the GPU memory controller to make **32 separate VRAM trips** to get the exact same amount of information.
+
+*(Run `python cuda_memory_coalescing.py` to compile the kernel and watch memory bandwidth choke in real-time)*

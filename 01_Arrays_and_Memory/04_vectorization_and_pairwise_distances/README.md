@@ -65,3 +65,38 @@ By transforming the subtraction problem into Matrix Multiplication, the maximum 
 * **Result:** A **128x reduction in memory**, completely neutralizing the OOM threat while maximizing calculation speed.
 
 *(Run `python vectorization_internals.py` to see the memory footprint tracking and math verification in the terminal)*
+
+---
+
+
+## 6. ⚙️ The Descent to Silicon: Hardware Registers vs VRAM
+In Section 4, we noted that PyTorch broadcasting causes a memory spike because it writes the intermediate $D$ dimension to physical VRAM. How exactly does the hardware avoid this?
+
+By dropping down to inline CUDA, we can map a 2D grid of threads directly to the $(N, M)$ output matrix and force the GPU to do the math inside its silicon registers.
+
+**The Register Loop:**
+```cpp
+float dist_sq = 0.0f; // This variable lives inside the SM Register, NOT VRAM!
+for (int d = 0; d < D; ++d) {
+    float diff = X[row * D + d] - Y[col * D + d];
+    dist_sq += diff * diff;
+}
+output[row * M + col] = sqrtf(dist_sq); // We write to VRAM only ONCE.
+
+
+
+### ⏱️ The Reality Check: 0.07s vs 0.004s
+
+Running this custom kernel successfully bypasses the **11.92 GB** broadcasting memory trap, safely allocating only **0.093 GB**. However, looking at the execution logs reveals a massive performance gap:
+
+* **Custom Register Kernel:** `0.07015s`
+* **Native `torch.cdist`:** `0.00440s`
+
+**Why is our custom C++ kernel ~16x slower than PyTorch?**
+Look closely at the `for` loop above. While the *accumulation* happens in the ultra-fast register (`dist_sq`), the *data fetching* (`X[...]` and `Y[...]`) pulls directly from Global VRAM on every single iteration.
+
+PyTorch's `cdist` is powered by NVIDIA's highly optimized **cuBLAS** library. Instead of reading from VRAM sequentially, cuBLAS utilizes **Tiled Shared Memory** (the GPU's physical L1 Cache). It loads large mathematical "tiles" of the `X` and `Y` matrices into the cache *once*, computes all possible pairwise combinations for that tile, and then moves to the next.
+
+This is the ultimate lesson of system engineering: Simply writing CUDA code isn't enough.
+
+```
