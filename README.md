@@ -17,11 +17,11 @@ This repository explores:
 
 ## 📊 Featured Benchmarks & Patterns
 
-| DSA Foundation | ML Pattern | Context | Naive (Python) | Optimized (CUDA/Torch) | Speedup | Key Insight |
+| DSA Foundation | ML Pattern | Context | Naive (Python) | Optimized (CUDA/Torch) | Speedup / Impact | Key Insight |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Arrays / Nested Loops** | [Broadcasting](./01_Arrays_and_Memory/01_broadcasting_vs_nested_loops) | Single-Target MSE | `8.6485s` | `0.0610s` | **~141x** 🚀 | Zero-Copy Views (Stride Manipulation) |
+| **Arrays / Nested Loops** | [Broadcasting](./01_Arrays_and_Memory/01_broadcasting_vs_nested_loops) | Single-Target MSE | `8.6485s` | `0.0610s` | **~141x** 🚀 | Zero-Copy Views |
 | **Conditionals / Branching** | [Advanced Indexing](./01_Arrays_and_Memory/02_advanced_indexing_vs_branching) | ReLU / Dropout | `0.3047s` | `0.0255s` | **~12x** ⚡ | Branchless Programming (Bitmasks) |
-
+| **Sliding Window / 2D Arrays** | [Stride Manipulation](./01_Arrays_and_Memory/03_memory_layouts_and_strides) | 1D Convolutions | `~12.50s` | `0.00001s` | **O(1) Memory** 🧠 | Zero-Allocation Views (`as_strided`) |
 ---
 
 ## 📂 Repository Structure & Roadmap
@@ -37,7 +37,10 @@ This repository follows a structured roadmap, mapping classic DSA categories dir
 * **2. [If/Else Branching -> Advanced Indexing & Filtering](./01_Arrays_and_Memory/02_advanced_indexing_vs_branching)**
     * **DSA Concept:** Conditionals and array filtering.
     * **ML Application:** Why `if x > 0` kills CPU performance (Branch Prediction Failures). Replacing branch logic with Boolean Masks for a 12x speedup and memory-safe in-place operations.
-
+* **3. [Sliding Window -> Memory Layouts & Stride Manipulation](./01_Arrays_and_Memory/03_memory_layouts_and_strides)**
+    * **DSA Concept:** Sliding Window and Matrix Transposition.
+    * **ML Application:** Emulating 2D/3D convolutions on 1D physical RAM without memory copying. Why `for` loops cause Out-Of-Memory (OOM) errors on GPUs, and avoiding the `is_contiguous()` trap for CUDA kernels.
+    
 ### 📍 Phase 2: Hash Maps & Search Optimization (Upcoming)
 *Bridging exact key-value retrieval with approximate semantic search.*
 * **DSA Concept:** Hashing, Tries, Collision Resolution.
