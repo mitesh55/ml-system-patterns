@@ -23,6 +23,7 @@ This repository explores:
 | **Conditionals / Branching** | [Advanced Indexing](./01_Arrays_and_Memory/02_advanced_indexing_vs_branching) | ReLU / Dropout | `0.3047s` | `0.0255s` | **~12x** ⚡ | Branchless Programming (Bitmasks) |
 | **Sliding Window / 2D Arrays** | [Stride Manipulation](./01_Arrays_and_Memory/03_memory_layouts_and_strides) | 1D Convolutions | `~12.50s` | `0.00001s` | **O(1) Memory** 🧠 | Zero-Allocation Views (`as_strided`) |
 | **Cartesian Product / Math**| [Vectorization & GEMM](./01_Arrays_and_Memory/04_vectorization_and_pairwise_distances) | KNN / Attention Distances | `~1050.72s` | `0.0042s` | **~249,000x** 🤯 | SIMD & Algebraic Expansion |
+| **Pointers / Array Indexing** | [Scatter & Gather](./01_Arrays_and_Memory/05_scatter_and_gather) | One-Hot / LLM Logits | `~35.76s` | `0.14s` | **~250x** ⚡ | Atomic Parallel Memory Routing |
 ---
 
 ## 📂 Repository Structure & Roadmap
@@ -44,7 +45,9 @@ This repository follows a structured roadmap, mapping classic DSA categories dir
 * **4. [Nested Loops -> Vectorization & Pairwise Distances](./01_Arrays_and_Memory/04_vectorization_and_pairwise_distances)**
     * **DSA Concept:** Cartesian Products and $O(N^2)$ Distance Matrices.
     * **ML Application:** The math powering Vector Databases (RAG) and Transformer Attention. Why PyTorch broadcasting `unsqueeze()` causes catastrophic OOM errors, and how algebraic expansion (GEMM) pushes computation directly into hardware registers to save massive amounts of RAM.
-
+* **5. [Array Indexing -> Memory Routing (Scatter & Gather)](./01_Arrays_and_Memory/05_scatter_and_gather)**
+    * **DSA Concept:** Pointers, Array Indexing, and Write/Read Routing.
+    * **ML Application:** How `scatter_` handles One-Hot encoding and Mixture of Experts (MoE) routing, and how `gather` extracts true-token probabilities from LLM logits. Exposing why sequential Python loops cause race conditions, and how the C++ backend utilizes atomic operations for massively parallel memory writes.
     
 ### 📍 Phase 2: Hash Maps & Search Optimization (Upcoming)
 *Bridging exact key-value retrieval with approximate semantic search.*
