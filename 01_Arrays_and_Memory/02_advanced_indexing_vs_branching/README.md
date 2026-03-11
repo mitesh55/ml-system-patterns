@@ -5,8 +5,8 @@
 ## 1. The Engineering "Why" 
 In Data Loaders and Preprocessing pipelines (e.g., Cleaning Data, ReLU Activation, Dropout), we often need to filter millions of elements.
 
-* **The Junior Mistake:** Using Python loops with `if` statements. This kills the CPU pipeline due to **Branch Misprediction**.
-* **The Senior Solution:** Using **Boolean Masks** to process data as vectors, allowing the CPU to execute math without "guessing" the outcome.
+* **Naive Implementation:** Using Python loops with `if` statements. This kills the CPU pipeline due to **Branch Misprediction**.
+* **Hardware-Aware Implementation:** Using **Boolean Masks** to process data as vectors, allowing the CPU to execute math without "guessing" the outcome.
 
 ---
 

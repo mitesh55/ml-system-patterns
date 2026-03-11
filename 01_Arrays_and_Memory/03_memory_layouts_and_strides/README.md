@@ -3,10 +3,10 @@
 > **Core Principle:** "Tensors are illusions. Physical RAM is strictly 1-Dimensional. Master the Stride, control the Memory."
 
 ## 1. The Engineering "Why"
-When building high-performance systems like Real-Time Virtual Try-On (VTON) or massive CNNs, we constantly slide filters (windows) across image tensors. 
+When building massive CNNs, we constantly slide filters (windows) across image tensors. 
 
-* **The Junior Mistake:** Using loops to slice arrays, or relying on high-level functions that copy memory into new blocks. If you copy a 4K image for every convolution window, you will instantly hit an Out-Of-Memory (OOM) error on your GPU.
-* **The Senior Solution:** **Stride Manipulation**. We trick the PyTorch engine into reading a 1D array as an overlapping 2D/3D matrix without allocating a single byte of new memory.
+* **Naive Implementation:** Using loops to slice arrays, or relying on high-level functions that copy memory into new blocks. If you copy a 4K image for every convolution window, you will instantly hit an Out-Of-Memory (OOM) error on your GPU.
+* **Hardware-Aware Implementation:** **Stride Manipulation**. We trick the PyTorch engine into reading a 1D array as an overlapping 2D/3D matrix without allocating a single byte of new memory.
 
 ---
 
