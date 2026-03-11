@@ -2,7 +2,7 @@
 
 > **Core Principle:** "Broadcasting stretches indexing, not memory."
 
-## 1. The Engineering "Why" (The Hook)
+## 1. The Engineering "Why"
 
 In Machine Learning, we often need to apply operations (like bias addition) across massive tensors. A naive approach copies data to match shapes, causing **Memory Bloat** and **Cache Misses**.
 
@@ -75,7 +75,7 @@ This mimics how CUDA kernels fetch data during a broadcasted add.
 
 ---
 
-## 4. The Rules of Broadcasting (Reference)
+## 4. The Rules of Broadcasting 
 
 1. Align shapes starting from the **trailing dimension** (right to left).
 2. Dimensions are compatible if:

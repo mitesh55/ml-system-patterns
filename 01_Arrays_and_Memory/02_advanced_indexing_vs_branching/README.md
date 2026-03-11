@@ -2,7 +2,7 @@
 
 > **Core Principle:** "Avoid Control Flow (`if/else`) inside loops. Use Data Flow (Masks) instead."
 
-## 1. The Engineering "Why" (The Hook)
+## 1. The Engineering "Why" 
 In Data Loaders and Preprocessing pipelines (e.g., Cleaning Data, ReLU Activation, Dropout), we often need to filter millions of elements.
 
 * **The Junior Mistake:** Using Python loops with `if` statements. This kills the CPU pipeline due to **Branch Misprediction**.
