@@ -24,6 +24,7 @@ This repository explores:
 | **Sliding Window / 2D Arrays** | [Stride Manipulation](./01_Arrays_and_Memory/03_memory_layouts_and_strides) | 1D Convolutions | `~12.50s` | `0.00001s` | **O(1) Memory** 🧠 | Zero-Allocation Views (`as_strided`) |
 | **Cartesian Product / Math**| [Vectorization & GEMM](./01_Arrays_and_Memory/04_vectorization_and_pairwise_distances) | KNN / Attention Distances | `~1050.72s` | `0.0042s` | **~249,000x** 🤯 | SIMD & Algebraic Expansion |
 | **Pointers / Array Indexing** | [Scatter & Gather](./01_Arrays_and_Memory/05_scatter_and_gather) | One-Hot / LLM Logits | `~35.76s` | `0.14s` | **~250x** ⚡ | Atomic Parallel Memory Routing |
+| **Math / Array Reductions** | [Batch Norm & Fusion](./01_Arrays_and_Memory/06_batch_normalization) | Intermediate Tensor Trap | `0.0307s` | `0.0082s` | **~3.7x** ⚡ (1.6GB RAM Saved) | Register Fusion & cuDNN Warp Reductions |
 ---
 
 ## 📂 Repository Structure & Roadmap
@@ -48,6 +49,10 @@ This repository follows a structured roadmap, mapping classic DSA categories dir
 * **5. [Array Indexing -> Memory Routing (Scatter & Gather)](./01_Arrays_and_Memory/05_scatter_and_gather)**
     * **DSA Concept:** Pointers, Array Indexing, and Write/Read Routing.
     * **ML Application:** How `scatter_` handles One-Hot encoding and Mixture of Experts (MoE) routing, and how `gather` extracts true-token probabilities from LLM logits. Exposing why sequential Python loops cause race conditions, and how the C++ backend utilizes atomic operations for massively parallel memory writes.
+
+* **6. [Statistical Math -> Batch Normalization & Operator Fusion](./01_Arrays_and_Memory/06_batch_normalization)**
+    * **DSA Concept:** Array reductions (Mean, Variance) and multi-pass algorithms.
+    * **ML Application:** Bypassing the "Intermediate Tensor Trap." Proof that naive PyTorch math dynamically allocates 1.6 GB of temporary VRAM for a 400MB batch, and how writing a fused CUDA kernel drops memory allocation to zero. Understanding why cuDNN's Warp-Level reductions are the ultimate hardware ceiling.
     
 ### 📍 Phase 2: Hash Maps & Search Optimization (Upcoming)
 *Bridging exact key-value retrieval with approximate semantic search.*
