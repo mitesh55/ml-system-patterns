@@ -26,6 +26,7 @@ This repository explores:
 | **Pointers / Array Indexing** | [Scatter & Gather](./01_Arrays_and_Memory/05_scatter_and_gather) | One-Hot / LLM Logits | `~35.76s` | `0.14s` | **~250x** ⚡ | Atomic Parallel Memory Routing |
 | **Math / Array Reductions** | [Batch Norm & Fusion](./01_Arrays_and_Memory/06_batch_normalization) | Intermediate Tensor Trap | `0.0307s` | `0.0082s` | **~3.7x** ⚡ (1.6GB RAM Saved) | Register Fusion & cuDNN Warp Reductions |
 ---
+| **Arrays / Ragged Data** | [1D Sequence Packing](./01_Arrays_and_Memory/07_sequence_collation) | LLM Serving & FlashAttention | `2D Padding (OOM Risk)` | `1D Concat + cu_seqlens` | **Massive VRAM Reclaimed** 🧠 | Eliminating Ghost Compute & `cu_seqlens` hardware routing |
 
 ## 📂 Repository Structure & Roadmap
 
@@ -53,7 +54,10 @@ This repository follows a structured roadmap, mapping classic DSA categories dir
 * **6. [Statistical Math -> Batch Normalization & Operator Fusion](./01_Arrays_and_Memory/06_batch_normalization)**
     * **DSA Concept:** Array reductions (Mean, Variance) and multi-pass algorithms.
     * **ML Application:** Bypassing the "Intermediate Tensor Trap." Proof that naive PyTorch math dynamically allocates 1.6 GB of temporary VRAM for a 400MB batch, and how writing a fused CUDA kernel drops memory allocation to zero. Understanding why cuDNN's Warp-Level reductions are the ultimate hardware ceiling.
-    
+* **7. [Ragged Arrays -> Sequence Collation & 1D Packing](./01_Arrays_and_Memory/07_sequence_collation)**
+    * **DSA Concept:** Variable-length arrays, memory alignment, and ragged data structures.
+    * **ML Application:** Why `torch.stack` and 2D padding cause "Ghost Compute" (wasted FLOPs and VRAM). How modern LLM inference engines (vLLM) and FlashAttention use 1D array packing (`torch.cat`) and `cu_seqlens` pointers to physically isolate user prompts at the silicon level, bypassing padding entirely.
+     
 ### 📍 Phase 2: Hash Maps & Search Optimization (Upcoming)
 *Bridging exact key-value retrieval with approximate semantic search.*
 * **DSA Concept:** Hashing, Tries, Collision Resolution.
