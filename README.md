@@ -25,8 +25,10 @@ This repository explores:
 | **Cartesian Product / Math**| [Vectorization & GEMM](./01_Arrays_and_Memory/04_vectorization_and_pairwise_distances) | KNN / Attention Distances | `~1050.72s` | `0.0042s` | **~249,000x** 🤯 | SIMD & Algebraic Expansion |
 | **Pointers / Array Indexing** | [Scatter & Gather](./01_Arrays_and_Memory/05_scatter_and_gather) | One-Hot / LLM Logits | `~35.76s` | `0.14s` | **~250x** ⚡ | Atomic Parallel Memory Routing |
 | **Math / Array Reductions** | [Batch Norm & Fusion](./01_Arrays_and_Memory/06_batch_normalization) | Intermediate Tensor Trap | `0.0307s` | `0.0082s` | **~3.7x** ⚡ (1.6GB RAM Saved) | Register Fusion & cuDNN Warp Reductions |
----
 | **Arrays / Ragged Data** | [1D Sequence Packing](./01_Arrays_and_Memory/07_sequence_collation) | LLM Serving & FlashAttention | `2D Padding (OOM Risk)` | `1D Concat + cu_seqlens` | **Massive VRAM Reclaimed** 🧠 | Eliminating Ghost Compute & `cu_seqlens` hardware routing |
+| **Attention Mechanics** | [RoPE & Memory Thrash](./01_Arrays_and_Memory/08_positional_encoding) | LLM Context Scaling | `PyTorch torch.cat (+2GB)` | `In-Place C++ Kernel (+0MB)` | **Zero-Allocation Execution** 🧠 | Escaping Python semantics, Rotary Positional Embeddings, Position Interpolation |
+---
+
 
 ## 📂 Repository Structure & Roadmap
 
@@ -57,6 +59,10 @@ This repository follows a structured roadmap, mapping classic DSA categories dir
 * **7. [Ragged Arrays -> Sequence Collation & 1D Packing](./01_Arrays_and_Memory/07_sequence_collation)**
     * **DSA Concept:** Variable-length arrays, memory alignment, and ragged data structures.
     * **ML Application:** Why `torch.stack` and 2D padding cause "Ghost Compute" (wasted FLOPs and VRAM). How modern LLM inference engines (vLLM) and FlashAttention use 1D array packing (`torch.cat`) and `cu_seqlens` pointers to physically isolate user prompts at the silicon level, bypassing padding entirely.
+* **8. [Attention Mechanics -> RoPE & Memory Thrash](./01_Arrays_and_Memory/08_positional_encoding)**
+    * **DSA/Math Concept:** Trigonometry, complex vector rotation, and relative distance algorithms.
+    * **ML Application:** Why standard PyTorch RoPE implementations cause massive (+2GB) VRAM spikes due to Python's immutable variable semantics. We benchmark Eager Mode vs. `torch.compile` vs. Custom C++ to prove how inference engines achieve absolute zero-allocation memory mutation. Also covers the "Position Interpolation" math trick used to extend models to 256K context windows.
+
      
 ### 📍 Phase 2: Hash Maps & Search Optimization (Upcoming)
 *Bridging exact key-value retrieval with approximate semantic search.*
