@@ -27,6 +27,7 @@ This repository explores:
 | **Math / Array Reductions** | [Batch Norm & Fusion](./01_Arrays_and_Memory/06_batch_normalization) | Intermediate Tensor Trap | `0.0307s` | `0.0082s` | **~3.7x** ⚡ (1.6GB RAM Saved) | Register Fusion & cuDNN Warp Reductions |
 | **Arrays / Ragged Data** | [1D Sequence Packing](./01_Arrays_and_Memory/07_sequence_collation) | LLM Serving & FlashAttention | `2D Padding (OOM Risk)` | `1D Concat + cu_seqlens` | **Massive VRAM Reclaimed** 🧠 | Eliminating Ghost Compute & `cu_seqlens` hardware routing |
 | **Attention Mechanics** | [RoPE & Memory Thrash](./01_Arrays_and_Memory/08_positional_encoding) | LLM Context Scaling | `PyTorch torch.cat (+2GB)` | `In-Place C++ Kernel (+0MB)` | **Zero-Allocation Execution** 🧠 | Escaping Python semantics, Rotary Positional Embeddings, Position Interpolation |
+| **Vision Data Pipelines** | [Augmentation Memory Traps](./01_Arrays_and_Memory/09_image_augmentation) | Hardware Contiguity | `Algebraic Masking (+640MB)` | `In-Place Roll (+12MB)` | **Zero-Allocation CutMix** 🖼️ | Memory fragmentation in CutMix/Mosaic, `torch.flip()` contiguity traps, and the 4GB Conv2d activation explosion. |
 ---
 
 
@@ -62,7 +63,9 @@ This repository follows a structured roadmap, mapping classic DSA categories dir
 * **8. [Attention Mechanics -> RoPE & Memory Thrash](./01_Arrays_and_Memory/08_positional_encoding)**
     * **DSA/Math Concept:** Trigonometry, complex vector rotation, and relative distance algorithms.
     * **ML Application:** Why standard PyTorch RoPE implementations cause massive (+2GB) VRAM spikes due to Python's immutable variable semantics. We benchmark Eager Mode vs. `torch.compile` vs. Custom C++ to prove how inference engines achieve absolute zero-allocation memory mutation. Also covers the "Position Interpolation" math trick used to extend models to 256K context windows.
-
+* **9. [Vision Data Pipelines -> Augmentation Memory Traps](./01_Arrays_and_Memory/09_image_augmentation)**
+    * **DSA/Math Concept:** Batched index manipulation, multi-dimensional tensor rolling, and memory stride contiguity.
+    * **ML Application:** Exposing the hidden VRAM spikes in high-res Computer Vision pipelines (YOLO/ResNet). Proves how naive algebraic masking for CutMix destroys memory (+640MB) compared to optimal in-place pointer swapping (+12MB). Also reveals the hardware contiguity crash caused by negative strides (`[::-1]`) and why early `Conv2d` layers cause massive (+4.1GB) feature-map memory bottlenecks.
      
 ### 📍 Phase 2: Hash Maps & Search Optimization (Upcoming)
 *Bridging exact key-value retrieval with approximate semantic search.*
