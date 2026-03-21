@@ -66,3 +66,35 @@ When working with High-Res images, your VRAM bottleneck isn't the model's weight
 * **State-of-the-Art Object Detection (YOLO Architectures):** The Mosaic and CutMix augmentations are the exact techniques that allowed the YOLOv4/YOLOv5 architectures to achieve real-time inference speeds while maintaining high Mean Average Precision (mAP) on small, occluded objects. 
 * **The Occlusion Problem in ADAS:** In Advanced Driver Assistance Systems (ADAS), a neural network might learn to only recognize a "Pedestrian" if they are fully visible. By mixing patches of different images together via CutMix, engineers force the model to recognize a pedestrian even if only their top half is visible behind a parked car. Using the "Batched In-Place Roll" allows us to train these robust features on the GPU without exploding VRAM.
 * **NVIDIA DALI:** The memory and CPU bottlenecks caused by naive augmentations (like the ones exposed in this benchmark) were so severe across the industry that NVIDIA built an entire dedicated C++ library called **DALI (Data Loading Library)** strictly to manage memory-contiguous, batched GPU augmentations without thrashing the VRAM bus.
+
+---
+
+## 6. The Production Pipeline Strategy (How to actually build it)
+
+So, if algebraic CutMix wastes VRAM, and GPU Flips trigger contiguity crashes, how do we architect a high-performance vision pipeline? 
+
+We split the work based on memory physics:
+
+### Step 1: The CPU Dataloader (Metadata & Spatial Ops)
+* **What to do here:** Horizontal Flips, Rotations, Color Jitter.
+* **Why:** Libraries like `albumentations` or `torchvision.transforms` handle these operations efficiently on the CPU before the images are stacked into a batch. By flipping the image on the CPU, the memory is physically rearranged *before* it gets sent to the GPU. This completely avoids the `torch.flip()` 192MB contiguity crash in the VRAM.
+
+### Step 2: The Device Transfer
+* Move the perfectly contiguous, pre-flipped batch to the GPU: `batch = batch.cuda()`.
+
+### Step 3: The GPU (Batched Memory Overwrites)
+* **What to do here:** CutMix, Mosaic, Cutout.
+* **Why:** These augmentations require blending multiple images in a batch together. Doing this on the CPU is incredibly slow. By doing it on the GPU using the **Batched In-Place Roll** (`batch[...] = batch[rolled]`), you achieve lightning-fast augmentations with a near-zero (+12MB) memory footprint, leaving all your VRAM available for the massive `Conv2d` forward pass.
+
+---
+
+### 🧠 Systems FAQ: When exactly do we pay the "Memory Tax"?
+
+A common question is: *If negative strides (Flips) cause a massive VRAM spike during the Conv2d forward pass, why doesn't Algebraic Masking (CutMix) cause a spike during the forward pass too?*
+
+It comes down to **when** PyTorch allocates the memory:
+* **Negative Strides (Flips):** This is purely a metadata change. No new memory is allocated upfront. Because the physical memory is left untouched (and backward), the `Conv2d` C++ kernel panics and forces a memory copy **LATER** (during the forward pass).
+* **Algebraic Masking (CutMix):** Mathematical operations (`A + B`) force PyTorch to allocate a brand new, physical tensor to hold the output. Because it builds a new tensor from scratch, it is automatically created contiguous. You pay a massive memory tax **EARLY** (during the augmentation step), but the forward pass is safe.
+* **In-Place Roll (The Optimal Way):** By physically overwriting existing memory pointers, we create no new tensors (saving upfront memory) and we don't break the original memory contiguity (saving forward-pass memory). It is the only way to bypass the allocator entirely.
+
+![Memory Tax Timeline](./visuals/03_memory_tax_timeline.png)
